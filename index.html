@@ -85,7 +85,7 @@
 
   <h3>Scan QR</h3>
   <div id="reader"></div>
-
+<div id="records"></div>
   <div id="result"></div>
 
 </div>
@@ -155,7 +155,19 @@ setInterval(() => {
   document.getElementById("clock").innerText =
     "Time: " + new Date().toLocaleTimeString();
 }, 1000);
-</script>
+</scrifunction displayAttendance() {
+  let records = JSON.parse(localStorage.getItem("attendance")) || [];
+
+  let output = "<h3>Attendance Records</h3>";
+
+  records.forEach((rec, index) => {
+    output += `<p>${index + 1}. ${rec.time} - ${rec.status}</p>`;
+  });
+
+  document.getElementById("records").innerHTML = output;
+}pt>
+  displayAttendance();
+  
 
 </body>
 </html>
