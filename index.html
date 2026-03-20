@@ -116,6 +116,28 @@ function generateQR() {
 
 function onScanSuccess(decodedText) {
   if (decodedText.startsWith("ATTENDANCE_")) {
+
+    let records = JSON.parse(localStorage.getItem("attendance")) || [];
+
+    let newEntry = {
+      time: new Date().toLocaleString(),
+      status: "Present"
+    };
+
+    records.push(newEntry);
+
+    localStorage.setItem("attendance", JSON.stringify(records));
+
+    document.getElementById("result").innerHTML =
+      "✅ Attendance Saved Successfully!";
+
+    displayAttendance();
+
+  } else {
+    document.getElementById("result").innerHTML = "❌ Invalid QR";
+  }
+ {
+  if (decodedText.startsWith("ATTENDANCE_")) {
     document.getElementById("result").innerHTML = "✅ Attendance Marked Successfully!";
   } else {
     document.getElementById("result").innerHTML = "❌ Invalid QR";
