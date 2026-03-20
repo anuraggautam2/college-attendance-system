@@ -3,7 +3,6 @@
 <head>
   <title>Smart QR Attendance System</title>
 
-  <!-- QR + Scanner Libraries -->
   <script src="https://unpkg.com/html5-qrcode"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
@@ -13,12 +12,7 @@
       text-align: center;
       background: linear-gradient(135deg, #667eea, #764ba2);
       color: white;
-      margin: 0;
       padding: 20px;
-    }
-
-    h1 {
-      margin-bottom: 10px;
     }
 
     .container {
@@ -28,26 +22,21 @@
       border-radius: 15px;
       max-width: 400px;
       margin: auto;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    input {
+      padding: 10px;
+      margin: 5px;
+      width: 90%;
     }
 
     button {
+      padding: 10px 20px;
       background: #667eea;
       color: white;
       border: none;
-      padding: 10px 20px;
-      font-size: 16px;
       border-radius: 8px;
       cursor: pointer;
-      margin: 10px;
-    }
-
-    button:hover {
-      background: #5a67d8;
-    }
-
-    #qr {
-      margin: 20px;
     }
 
     #reader {
@@ -55,38 +44,23 @@
       margin: auto;
     }
 
-    #result {
-      font-size: 18px;
-      margin-top: 10px;
-      font-weight: bold;
-    }
-
-    #clock {
-      margin-bottom: 10px;
-      font-size: 14px;
-    }
-
     #records {
-      margin-top: 15px;
       text-align: left;
+      margin-top: 10px;
       max-height: 200px;
       overflow-y: auto;
-      font-size: 14px;
-    }
-
-    footer {
-      margin-top: 20px;
-      font-size: 12px;
     }
   </style>
 </head>
 
 <body>
 
-<h1>📚 Smart QR Attendance System</h1>
-<div id="clock"></div>
+<h1>📚 Smart Attendance System</h1>
 
 <div class="container">
+
+  <input type="text" id="name" placeholder="Enter Name">
+  <input type="text" id="roll" placeholder="Enter Roll Number">
 
   <button onclick="startQR()">Start Attendance</button>
 
@@ -101,55 +75,76 @@
 
 </div>
 
-<footer>Developed by Anurag Gautam 🚀</footer>
-
 <script>
+
+let sessionID = "";
 let interval;
 
-// Start QR system
+// Start session
 function startQR() {
+  sessionID = "SESSION_" + new Date().getTime();
+
   generateQR();
 
   clearInterval(interval);
-  interval = setInterval(() => {
-    generateQR();
-  }, 10000); // every 10 sec
+  interval = setInterval(generateQR, 10000);
 }
 
 // Generate QR
 function generateQR() {
-  let data = "ATTENDANCE_" + new Date().getTime();
+  let qrData = sessionID;
 
   document.getElementById("qr").innerHTML = "";
 
-  QRCode.toCanvas(data, { width: 200 }, function (err, canvas) {
+  QRCode.toCanvas(qrData, { width: 200 }, function (err, canvas) {
     document.getElementById("qr").appendChild(canvas);
   });
 }
 
-// Scan success
+// Scan logic
 function onScanSuccess(decodedText) {
-  if (decodedText.startsWith("ATTENDANCE_")) {
 
-    let records = JSON.parse(localStorage.getItem("attendance")) || [];
+  let name = document.getElementById("name").value;
+  let roll = document.getElementById("roll").value;
 
-    let newEntry = {
-      time: new Date().toLocaleString(),
-      status: "Present"
-    };
-
-    records.push(newEntry);
-
-    localStorage.setItem("attendance", JSON.stringify(records));
-
+  if (!name || !roll) {
     document.getElementById("result").innerHTML =
-      "✅ Attendance Saved Successfully!";
-
-    displayAttendance();
-
-  } else {
-    document.getElementById("result").innerHTML = "❌ Invalid QR";
+      "⚠️ Enter Name & Roll Number first!";
+    return;
   }
+
+  if (decodedText !== sessionID) {
+    document.getElementById("result").innerHTML =
+      "❌ Invalid or Expired QR";
+    return;
+  }
+
+  let records = JSON.parse(localStorage.getItem("attendance")) || [];
+
+  // Check duplicate
+  let alreadyExists = records.find(r => r.roll === roll && r.session === sessionID);
+
+  if (alreadyExists) {
+    document.getElementById("result").innerHTML =
+      "⚠️ Attendance already marked!";
+    return;
+  }
+
+  // Save attendance
+  let newEntry = {
+    name: name,
+    roll: roll,
+    session: sessionID,
+    time: new Date().toLocaleString()
+  };
+
+  records.push(newEntry);
+  localStorage.setItem("attendance", JSON.stringify(records));
+
+  document.getElementById("result").innerHTML =
+    "✅ Attendance Marked Successfully!";
+
+  displayAttendance();
 }
 
 // Display records
@@ -158,28 +153,20 @@ function displayAttendance() {
 
   let output = "<h3>Attendance Records</h3>";
 
-  records.forEach((rec, index) => {
-    output += `<p>${index + 1}. ${rec.time} - ${rec.status}</p>`;
+  records.forEach((rec, i) => {
+    output += `<p>${i+1}. ${rec.name} (${rec.roll}) - ${rec.time}</p>`;
   });
 
   document.getElementById("records").innerHTML = output;
 }
 
-// Initialize scanner
-let scanner = new Html5QrcodeScanner("reader", {
-  fps: 10,
-  qrbox: 250
-});
+// Scanner
+let scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
 scanner.render(onScanSuccess);
 
-// Load records on start
+// Load existing data
 displayAttendance();
 
-// Live clock
-setInterval(() => {
-  document.getElementById("clock").innerText =
-    "Time: " + new Date().toLocaleTimeString();
-}, 1000);
 </script>
 
 </body>
