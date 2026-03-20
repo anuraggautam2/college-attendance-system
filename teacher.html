@@ -1,1 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Teacher Panel</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+</head>
 
+<body style="text-align:center">
+
+<h2>Teacher Portal</h2>
+
+<button onclick="startQR()">Start Attendance</button>
+
+<div id="qr"></div>
+
+<script>
+let sessionID = "";
+
+function startQR() {
+  sessionID = "SESSION_" + new Date().getTime();
+  generateQR();
+}
+
+function generateQR() {
+  QRCode.toCanvas(sessionID, { width: 200 }, function (err, canvas) {
+    document.getElementById("qr").innerHTML = "";
+    document.getElementById("qr").appendChild(canvas);
+  });
+}
+</script>
+
+</body>
+</html>
