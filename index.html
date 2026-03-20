@@ -1,43 +1,109 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>QR Attendance System</title>
+  <title>Smart QR Attendance System</title>
+
   <script src="https://unpkg.com/html5-qrcode"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
   <style>
     body {
-      font-family: Arial;
+      font-family: 'Segoe UI', sans-serif;
       text-align: center;
-      margin: 20px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      margin: 0;
+      padding: 20px;
     }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    .container {
+      background: white;
+      color: black;
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 400px;
+      margin: auto;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px;
+    }
+
+    button:hover {
+      background: #5a67d8;
+    }
+
     #qr {
       margin: 20px;
     }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-    }
+
     #reader {
       width: 300px;
       margin: auto;
+    }
+
+    #result {
+      font-size: 20px;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    #clock {
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    footer {
+      margin-top: 20px;
+      font-size: 12px;
     }
   </style>
 </head>
 
 <body>
 
-<h1>📚 QR Attendance System</h1>
+<h1>📚 Smart QR Attendance System</h1>
+<div id="clock"></div>
 
-<button onclick="generateQR()">Generate QR</button>
+<div class="container">
 
-<div id="qr"></div>
+  <button onclick="startQR()">Start Attendance</button>
 
-<h2>Scan QR</h2>
-<div id="reader"></div>
+  <div id="qr"></div>
 
-<h2 id="result"></h2>
+  <h3>Scan QR</h3>
+  <div id="reader"></div>
+
+  <div id="result"></div>
+
+</div>
+
+<footer>Developed by Anurag Gautam 🚀</footer>
 
 <script>
+let interval;
+
+function startQR() {
+  generateQR();
+  clearInterval(interval);
+
+  interval = setInterval(() => {
+    generateQR();
+  }, 10000); // refresh every 10 sec
+}
+
 function generateQR() {
   let data = "ATTENDANCE_" + new Date().getTime();
 
@@ -50,14 +116,23 @@ function generateQR() {
 
 function onScanSuccess(decodedText) {
   if (decodedText.startsWith("ATTENDANCE_")) {
-    document.getElementById("result").innerHTML = "✅ Attendance Marked";
+    document.getElementById("result").innerHTML = "✅ Attendance Marked Successfully!";
   } else {
     document.getElementById("result").innerHTML = "❌ Invalid QR";
   }
 }
 
-let scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+let scanner = new Html5QrcodeScanner("reader", {
+  fps: 10,
+  qrbox: 250
+});
 scanner.render(onScanSuccess);
+
+// Live Clock
+setInterval(() => {
+  document.getElementById("clock").innerText =
+    "Time: " + new Date().toLocaleTimeString();
+}, 1000);
 </script>
 
 </body>
