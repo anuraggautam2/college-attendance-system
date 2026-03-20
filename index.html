@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>QR Attendance System</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      margin: 20px;
+    }
+    #qr {
+      margin: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    #reader {
+      width: 300px;
+      margin: auto;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>📚 QR Attendance System</h1>
+
+<button onclick="generateQR()">Generate QR</button>
+
+<div id="qr"></div>
+
+<h2>Scan QR</h2>
+<div id="reader"></div>
+
+<h2 id="result"></h2>
+
+<script>
+function generateQR() {
+  let data = "ATTENDANCE_" + new Date().getTime();
+
+  document.getElementById("qr").innerHTML = "";
+
+  QRCode.toCanvas(data, { width: 200 }, function (err, canvas) {
+    document.getElementById("qr").appendChild(canvas);
+  });
+}
+
+function onScanSuccess(decodedText) {
+  if (decodedText.startsWith("ATTENDANCE_")) {
+    document.getElementById("result").innerHTML = "✅ Attendance Marked";
+  } else {
+    document.getElementById("result").innerHTML = "❌ Invalid QR";
+  }
+}
+
+let scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+scanner.render(onScanSuccess);
+</script>
+
+</body>
+</html>
