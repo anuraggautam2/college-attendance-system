@@ -3,6 +3,7 @@
 <head>
   <title>Smart QR Attendance System</title>
 
+  <!-- QR + Scanner Libraries -->
   <script src="https://unpkg.com/html5-qrcode"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
@@ -55,13 +56,21 @@
     }
 
     #result {
-      font-size: 20px;
-      margin-top: 15px;
+      font-size: 18px;
+      margin-top: 10px;
       font-weight: bold;
     }
 
     #clock {
       margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    #records {
+      margin-top: 15px;
+      text-align: left;
+      max-height: 200px;
+      overflow-y: auto;
       font-size: 14px;
     }
 
@@ -85,8 +94,10 @@
 
   <h3>Scan QR</h3>
   <div id="reader"></div>
-<div id="records"></div>
+
   <div id="result"></div>
+
+  <div id="records"></div>
 
 </div>
 
@@ -95,15 +106,17 @@
 <script>
 let interval;
 
+// Start QR system
 function startQR() {
   generateQR();
-  clearInterval(interval);
 
+  clearInterval(interval);
   interval = setInterval(() => {
     generateQR();
-  }, 10000); // refresh every 10 sec
+  }, 10000); // every 10 sec
 }
 
+// Generate QR
 function generateQR() {
   let data = "ATTENDANCE_" + new Date().getTime();
 
@@ -114,6 +127,7 @@ function generateQR() {
   });
 }
 
+// Scan success
 function onScanSuccess(decodedText) {
   if (decodedText.startsWith("ATTENDANCE_")) {
 
@@ -136,26 +150,10 @@ function onScanSuccess(decodedText) {
   } else {
     document.getElementById("result").innerHTML = "❌ Invalid QR";
   }
- {
-  if (decodedText.startsWith("ATTENDANCE_")) {
-    document.getElementById("result").innerHTML = "✅ Attendance Marked Successfully!";
-  } else {
-    document.getElementById("result").innerHTML = "❌ Invalid QR";
-  }
 }
 
-let scanner = new Html5QrcodeScanner("reader", {
-  fps: 10,
-  qrbox: 250
-});
-scanner.render(onScanSuccess);
-
-// Live Clock
-setInterval(() => {
-  document.getElementById("clock").innerText =
-    "Time: " + new Date().toLocaleTimeString();
-}, 1000);
-</scrifunction displayAttendance() {
+// Display records
+function displayAttendance() {
   let records = JSON.parse(localStorage.getItem("attendance")) || [];
 
   let output = "<h3>Attendance Records</h3>";
@@ -165,9 +163,24 @@ setInterval(() => {
   });
 
   document.getElementById("records").innerHTML = output;
-}pt>
-  displayAttendance();
-  
+}
+
+// Initialize scanner
+let scanner = new Html5QrcodeScanner("reader", {
+  fps: 10,
+  qrbox: 250
+});
+scanner.render(onScanSuccess);
+
+// Load records on start
+displayAttendance();
+
+// Live clock
+setInterval(() => {
+  document.getElementById("clock").innerText =
+    "Time: " + new Date().toLocaleTimeString();
+}, 1000);
+</script>
 
 </body>
 </html>
